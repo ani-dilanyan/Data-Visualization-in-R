@@ -1,0 +1,79 @@
+---
+title: "Tumo Day 6 Personal Geographies"
+output: html_notebook
+---
+
+```{r}
+
+library(rio)
+library(tidyverse)
+
+video_games_sales <- import("Video_Games_Sales.csv")
+
+```
+
+```{r}
+
+# Viewing data structure
+
+View(video_games_sales) 
+
+ncol(video_games_sales)
+nrow(video_games_sales)
+
+```
+
+```{r}
+
+video_games_sales <- video_games_sales %>%
+  group_by(Year_of_Release) %>%
+  summarise(freq=n()) %>%
+  mutate(prop=freq/sum(freq))
+
+ggplot(video_games_sales, aes(x="", y=factor(Year_of_Release), fill=c(Year_of_Release))) +
+  geom_bar(color="white", stat="identity", width=1) +
+  coord_polar("y", start=0) +
+  labs(title="Windows Games Sales For Each Platform",
+       x=NULL,
+       y=NULL,
+       fill = "Platforms",
+       caption = "Source: https://www.kaggle.com/rush4ratio/video-game-sales-with-ratings") +
+  theme(axis.text = element_blank(),
+        axis.ticks = element_blank(),
+        panel.grid  = element_blank()) 
+
+```
+
+```{r}
+
+cor(x = video_games_sales$Year_of_Release, y=video_games_sales$Genre, method="pearson", use="pairwise.complete.obs")
+
+video_games_sales %>%
+  ggplot(mapping=aes(x=Year_of_Release, y=Genre)) +
+  geom_point(color="purple") +
+  geom_smooth(color="lightblue", se=FALSE, method="lm") +
+  labs(title="Relationship Between Post-Graduation Income and Unemployment Rates \nIndectaes Negative Relationship",
+       x="75th Percentile of Post-Graduatio Income",
+       y="Unemployment Rate",
+       caption = "https://github.com/fivethirtyeight/data/blob/msater/college-majors")
+
+```
+
+Null hypothesis:
+  + p = 0
+Alternate hypothesis:
+  + $ p \ne0 $
+Conduct a test:
+  + I am going to use a hypothises test that leverages correlation to determine the realationship between the 75th percentile of post-graduation income and unemployement rate. I am choosing this test because I have two quantitative varibales, and I am curious about the strenght/direction of the relationship between them.
+
+```{r}
+
+# Hypothesis testing
+
+cor.test(x=video_games_sales$P75th, y=video_games_sales$Unemployment_rate, method="pearson")
+
+```
+
+Draw a conclusion:
+
+Based on the results of the test, we can reject the null hypothesis, which claims that the two variabels do not have a crrelation. Therefore, we can expect income to vary inversely with unemployment rate after graduation at a statistically significant level.
